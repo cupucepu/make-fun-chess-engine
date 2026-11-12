@@ -34,7 +34,7 @@ above, and posts it back until the game ends.
 ## Files
 
 - `main.py` — the whole engine, 3,910 bytes (limit 4,096).
-- `LICENSE` — Apache 2.0.
+- `LICENSE` — MIT.
 - `README.md` — this file.
 
 ## Verified results
@@ -53,6 +53,6 @@ search actually converts that into wins.
 
 - `main.py`: 3,910 bytes, sha256
   `09f6dbec8a2d932f4da984b48d69f8f5c8474b883bf858a6d03b9c5f6022223c`.
-- `LICENSE`: 1,099 bytes. `README.md`: 1,994 bytes.
-- Repo total (`main.py` + `LICENSE` + `README.md`): 7,003 bytes,
+- `LICENSE`: 1,099 bytes. `README.md`: 2,282 bytes.
+- Repo total (`main.py` + `LICENSE` + `README.md`): 7,291 bytes,
   under the 8,192-byte cap; every file is under 4,096 bytes.
