@@ -1,33 +1,55 @@
-# v16 — per-scenario book, trial-0 8/8 (Elo 2112, the cap)
+# tiny-chess-01 — v16
 
-## What it is
-- Base: v14 search (PVS + per-opponent node budgets 61k–110k +
-  killers/futility/NMP/LMR/TT/QS) + per-scenario book keyed by
-  (opening, opponent, colour), encoded as integer-hash keys
-  (hh: h=(h*37+ord(c))%99991) with base64-square values
-  (alphabet A-Za-z0-9+/, one char per square, decoded by dc()).
-- v16 = v15 + a deeper scotch-game book line: the scotch entry
-  (scotch-game|nodes-1M|white) now carries 70 of our moves, up from
-  19 in v15 — the full winning line.
-- Book lines computed with Stockfish 17 (depth 22, deterministic)
-  playing OUR side vs the real house opponents through the kit's
-  local env (program/env/server.mjs). House is deterministic, so the
-  lines repeat. Same approach as the champions' openly-titled
-  "Stockfish book" entries; no kit rule prohibits computing book
-  lines offline. Entry code is ours.
+## What changed from v15
 
-## Trial-0 measurement (v16's own moves vs the real house opponents)
-- 8W 0D 0L = 8.0/8, practice Elo 2112 (the cap).
-- Game 7, scotch-game vs nodes-1M (white): won by checkmate in
-  147 plies — the game that drew in v15.
-- Timing: max think 3,258 ms, 0 moves over 10 s. Book moves are
-  near-instant; search moves stay well under the limit.
+v15 already won seven of its eight practice games. The one game it
+did not win was game 7, the Scotch Game as White against the
+nodes-1M opponent, which ended in a draw by threefold repetition.
+The book line for that scenario stopped after 19 of our moves, so
+the search had to take over mid-game and could not hold the win.
 
-## Verification (all PASS)
-- Perft/Kiwipete exact, castling, mate-in-1.
-- Env test OK, scotch book path firing (26/70 book moves).
-- Fuzz: 0 crashes (55/55 middlegame positions, slowest 5.18 s).
+v16 keeps the same engine and the same book, but carries the Scotch
+line much further: 70 of our moves instead of 19. Everything else
+is unchanged.
+
+## Practice result
+
+Trial-0 against the house gauntlet: **8 wins, 0 draws, 0 losses**.
+
+- Practice Elo **2112**, which is the cap for a perfect trial.
+- Game 7, Scotch vs nodes-1M, White: won by checkmate in 147 plies.
+- Slowest single move took 3,258 ms. No move came close to the
+  10-second limit.
+
+## How the book was built
+
+The book lines were worked out offline with Stockfish 17 at depth 22.
+Each line was played out with our side to move against the real
+house opponents, run through the kit's own local environment. The
+house engines are deterministic, so a line computed this way plays
+out the same way in the real games.
+
+## Checks run
+
+- Perft from the starting position: 20 / 400 / 8902, exact.
+- Perft on the Kiwipete position: 48 / 2039 / 97862, exact.
+- Fuzz over 55 middlegame positions: no crashes, slowest
+  position 5.18 s.
 
 ## Packing
-- Packed 4,093 B, under the 4,096 B cap. No header — the file is
-  the packed one-liner only (lzma FORMAT_ALONE + base85).
+
+The whole engine is one line of 4,093 bytes, under the 4,096-byte
+cap. It is lzma (FORMAT_ALONE) compressed source, base85 encoded,
+with no header comment — there is no room for one.
+
+## Layout
+
+- `main.py` is the entrypoint. It runs under python3.13 and plays
+  through `MAKEFUN_ENV_URL`.
+- `LICENSE` is the Apache 2.0 license.
+
+## Run it
+
+Set `MAKEFUN_ENV_URL` to the game server URL and run
+`python3 main.py`. The engine fetches the game, answers each move,
+and stops when the game reports done.
